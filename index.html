@@ -8,42 +8,171 @@
       height: 300px;
       object-fit: cover;
     }
+    .theater-seat {
+      display: inline-block;
+      width: 40px;
+      height: 40px;
+      margin: 5px;
+      background-color: #ddd;
+      border: 1px solid #aaa;
+      cursor: pointer;
+    }
+    .theater-seat.selected {
+      background-color: #00ff00;
+    }
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgba(0, 0, 0, 0.5);
+    }
+    .modal-content {
+      background-color: #fff;
+      margin: 15% auto;
+      padding: 20px;
+      width: 60%;
+      max-width: 500px;
+      text-align: center;
+    }
+    .modal h2 {
+      margin-top: 0;
+    }
   </style>
 </head>
 <body>
   <h1>Welcome to the Theater Booking Website</h1>
 
   <div>
-    <h2>Featured Shows</h2>
-    <img class="theater-image" src="./download4.jpg" alt="Show Image">
-    <p>Join us for an incredible performance !</p>
+    <h2>Featured Show</h2>
+    <img class="theater-image" src="C:\Users\Sky\Downloads\download4.jpg" alt="Show Image">
+    <p>Join us for an incredible performance!</p>
+
   </div>
 
   <div>
     <h2>Upcoming Shows</h2>
     <ul>
       <li>
-        <img class="theater-image" src="./download3.jpg"alt="Show 1 Image">
-        <h3>LEO</h3>
-        <p>Date: JAN 29, 2024</p>
-        <p>Time: 1:00 PM</p>
-        <button>Book Tickets</button>
-      </li>
+        <img class="theater-image" src="C:\Users\Sky\Downloads\download3.jpg" alt="Show 1 Image">
+        <h3>Leo</h3>
+        <p>Date: Aug 01, 2023</p>
+        <p>Time: 7:00 AM</p>
+        <button onclick="openModal()">Book Tickets</button>
+      </li><br>
       <li>
-        <img class="theater-image" src="./download5.jpg" alt="Show 2 Image">
-        <h3>MASTER</h3>
-        <p>Date: JAN 29, 2024</p>
-        <p>Time: 4:00 PM</p>
-        <button>Book Tickets</button>
-      </li>
+        <img class="theater-image" src="C:\Users\Sky\Downloads\download5.jpg" alt="Show 2 Image">
+        <h3>Master</h3>
+        <p>Date: Aug 01, 2023</p>
+        <p>Time: 2:00 PM</p>
+        <button onclick="openModal()">Book Tickets</button>
+      </li><br>
       <li>
-        <img class="theater-image" src="./download6.jpg"alt="Show 3 Image">
-        <h3>BEAST</h3>
-        <p>Date: JAN 29, 2024</p>
-        <p>Time: 7:00 PM</p>
-        <button>Book Tickets</button>
+        <img class="theater-image" src="C:\Users\Sky\Downloads\download2.jpeg" alt="Show 3 Image">
+        <h3>Beast</h3>
+        <p>Date: Aug 01, 2023</p>
+        <p>Time: 6:30 PM</p>
+        <button onclick="openModal()">Book Tickets</button>
       </li>
     </ul>
   </div>
+
+  <div id="seatSelectionModal" class="modal">
+    <div class="modal-content">
+      <h2>Select Your Seats</h2>
+      <div id="theater">
+      </div>
+      <button onclick="closeModal()">Close</button>
+      <button onclick="bookTickets()">Book Tickets</button>
+    </div>
+  </div>
+
+  <script>
+    var selectedSeats = [];
+var seatRates = {
+  rows1to3: 200,
+  rows4to6: 300
+};
+function generateTheaterLayout(rows, seatsPerRow) {
+  var theaterElement = document.getElementById("theater");
+  theaterElement.innerHTML = "";
+
+  for (var i = 1; i <= rows; i++) {
+    for (var j = 1; j <= seatsPerRow; j++) {
+      var seat = document.createElement("div");
+      seat.classList.add("theater-seat");
+      seat.setAttribute("data-row", i);
+      seat.setAttribute("data-seat", j);
+      seat.onclick = function() {
+        toggleSeatSelection(this);
+      };
+      theaterElement.appendChild(seat);
+    }
+
+    var lineBreak = document.createElement("br");
+    theaterElement.appendChild(lineBreak);
+  }
+}
+function toggleSeatSelection(seatElement) {
+  seatElement.classList.toggle("selected");
+
+  var seatRow = seatElement.getAttribute("data-row");
+  var seatNumber = seatElement.getAttribute("data-seat");
+  var seatId = seatRow + "-" + seatNumber;
+
+  var index = selectedSeats.indexOf(seatId);
+  if (index > -1) {
+    selectedSeats.splice(index, 1);
+  } else {
+    selectedSeats.push(seatId);
+  }
+}
+function openModal() {
+  var modal = document.getElementById("seatSelectionModal");
+  modal.style.display = "block";
+  generateTheaterLayout(6, 8, 0);
+}
+function closeModal() {
+  var modal = document.getElementById("seatSelectionModal");
+  modal.style.display = "none";
+}
+function bookTickets() {
+  if (selectedSeats.length === 0) {
+    alert("Please select at least one seat.");
+  } else {
+    var name = prompt("Enter your name:");
+    var phone = prompt("Enter your phone number:");
+    var email = prompt("Enter your email address:");
+
+    var totalAmount = 0;
+    var seatsSummary = [];
+
+    for (var i = 0; i < selectedSeats.length; i++) {
+      var seat = selectedSeats[i];
+      var seatRow = parseInt(seat.split("-")[0]);
+
+      var seatRate = seatRow <= 3 ? seatRates.rows1to3 : seatRates.rows4to6;
+      totalAmount += seatRate;
+
+      seatsSummary.push(seat + " (Rate: ₹ " + seatRate + ")");
+    }
+
+    var confirmationMessage =
+      "Name: " + name + "\n" +
+      "Phone: " + phone + "\n" +
+      "Email: " + email + "\n\n" +
+      "Selected Seats: " + seatsSummary.join(", ") + "\n" +
+      "Total Amount: ₹ " + totalAmount;
+
+    alert(confirmationMessage);
+    closeModal();
+  }
+}
+
+  </script>
 </body>
 </html>
